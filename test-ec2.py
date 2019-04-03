@@ -15,7 +15,7 @@ def as_get_instances(client, asgroup, NextToken = None):
         irsp = client.describe_auto_scaling_instances(MaxRecords=2)
 
     for i in irsp['AutoScalingInstances']:
-        if i['AutoScalingGroupName'] == 'Gafar-ASG':
+        if i['AutoScalingGroupName'] == 'Gaafar-ASG':
             yield i['InstanceId']
 
     if 'NextToken' in irsp:
@@ -29,22 +29,25 @@ if __name__ == '__main__':
 
 #list of instances: 
 
-print("\nThis ASG gruop has these 4  running instances :","\n\n",list(as_get_instances(client,'content_server')))
+instances =  list(as_get_instances(client,'content_server'))
+
+print ("This ASG gruop has these running instances :\n") 
+
+print (*instances, sep='\n')
 
 print("\n#####################################################################\n")
 
-#output the random instances choices 
-
-print("\nThe following instancese will be distruppted :")
+#input number of instances to disturp 
 
 import random
 
-list  = list(as_get_instances(client, 'content_server'))
+list  = list(as_get_instances(client,'content_server'))
 
-ids = random.sample(list,2)
+x = int(input("How many instances you want to distrup?\nPlease inter a number between 1 and 6:\n"))
+ids = random.sample(list,x)
 
-print("\n",ids,"\n")
-
+print("The following instancese will be distruppted\n")
+print(*ids,sep='\n')
 
 # terminate the randomley selected instances
 
@@ -52,11 +55,12 @@ ec2 = boto3.resource('ec2')
 
 ec2.instances.filter(InstanceIds=ids).terminate()
 
+print ("\nPlease wait while these  intanceses being terminated") 
+
 #Sleep time  
 
 import time 
 time.sleep(300)
-
 
 #checking treminated intstances 
 
