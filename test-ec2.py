@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
 instances =  list(as_get_instances(client,'content_server'))
 
-print ("This ASG gruop has these running instances :\n") 
+print ("You have 6 instances running:\n") 
 
 print (*instances, sep='\n')
 
@@ -43,10 +43,10 @@ import random
 
 list  = list(as_get_instances(client,'content_server'))
 
-x = int(input("How many instances you want to distrup?\nPlease inter a number between 1 and 6:\n"))
+x = int(input("\nHow many do you want tud_cm to disrupt >>\n"))
 ids = random.sample(list,x)
 
-print("The following instancese will be distruppted\n")
+print("The following ",x," instancese will be distruppted\n")
 print(*ids,sep='\n')
 
 # terminate the randomley selected instances
@@ -55,7 +55,7 @@ ec2 = boto3.resource('ec2')
 
 ec2.instances.filter(InstanceIds=ids).terminate()
 
-print ("\nPlease wait while these  intanceses being terminated") 
+print ("\nPlease wait while these  intanceses being terminated...") 
 
 #Sleep time  
 
