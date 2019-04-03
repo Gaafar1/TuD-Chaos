@@ -57,10 +57,12 @@ ec2.instances.filter(InstanceIds=ids).terminate()
 
 print ("\nPlease wait while these  intanceses being terminated...") 
 
-#Sleep time  
+#Sleep time   
 
-import time 
-time.sleep(300)
+import time  
+time.sleep(100)
+
+
 
 #checking treminated intstances 
 
@@ -78,4 +80,12 @@ for instance in instances:
 
 print("\n#######################################################################\n")
 
-print("\nThis ASG gruop now has these 4  running instances :\n\n",list)
+print ("\nYou have the following  instances running:\n")
+
+ec2 = boto3.resource('ec2')
+
+instances = ec2.instances.filter(
+    Filters=[{'Name': 'tag:Name', 'Values': ['Gaafar-ASG']},{'Name': 'instance-state-name', 'Values': ['running']}])
+for instance in instances:
+    print(instance.id)
+
