@@ -1,16 +1,12 @@
-
-#Aws autoscaling create-auto-scaling-group --auto-scaling-group-name Gaafar-ASG --instance-id i-06b9c2d435cf3075e --min-size 1 --max-size 4 --desired-capacity 4
-#aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name Gaafar-ASG
-
+print("\n\nWelcome to TUD Chaos Monkey (tud_cm)")
 
 import boto3
 
 
 def as_get_instances(client, asgroup, NextToken = None):
-    # this is downright ridiculous because boto3 sucks
     irsp = None
     if NextToken:
-        irsp = client.describe_auto_scaling_instances(MaxRecords=2, NextToken=NextToken)
+       irsp = client.describe_auto_scaling_instances(MaxRecords=2, NextToken=NextToken)
     else:
         irsp = client.describe_auto_scaling_instances(MaxRecords=2)
 
@@ -31,7 +27,7 @@ if __name__ == '__main__':
 
 instances =  list(as_get_instances(client,'content_server'))
 
-print ("You have 6 instances running:\n") 
+print ("\nYou have 6 instances running:\n") 
 
 print (*instances, sep='\n')
 
@@ -43,49 +39,55 @@ import random
 
 list  = list(as_get_instances(client,'content_server'))
 
-x = int(input("\nHow many do you want tud_cm to disrupt >>\n"))
+x = int(input("\nHow many do you want tud_cm to disrupt >> "))
+
 ids = random.sample(list,x)
 
-print("The following ",x," instancese will be distruppted\n")
+print("The following ",x," Instance IDs will be distruppted\n")
 print(*ids,sep='\n')
 
+import datetime
+startime  = datetime.datetime.now()
 # terminate the randomley selected instances
 
-ec2 = boto3.resource('ec2')
+import boto3
+ec2 = boto3.client('ec2')
+ec2.terminate_instances(InstanceIds=ids)
+print ("\nPlease wait while the selected intanceses are terminated...")
 
-ec2.instances.filter(InstanceIds=ids).terminate()
+# wait until Terminated :
 
-print ("\nPlease wait while these  intanceses being terminated...") 
-
-#Sleep time   
-
-import time  
-time.sleep(100)
-
-
-
-#checking treminated intstances 
-
-print("\n the following instances are in terminated state:\n") 
-
-
-ec2 = boto3.resource('ec2')
-
-instances = ec2.instances.filter(
-    Filters=[{'Name': 'instance-state-name', 'Values': ['terminated']}])
-for instance in instances:
-    print(instance.id)
-
-#checking what instances are running again 
-
-print("\n#######################################################################\n")
+waiter=ec2.get_waiter('instance_terminated')
+waiter.wait(InstanceIds=ids)
+print( "\nThe following instances are now terminated:\n")
+print(*ids,sep='\n')
 
 print ("\nYou have the following  instances running:\n")
 
+import boto3 
 ec2 = boto3.resource('ec2')
 
 instances = ec2.instances.filter(
-    Filters=[{'Name': 'tag:Name', 'Values': ['Gaafar-ASG']},{'Name': 'instance-state-name', 'Values': ['running']}])
+    Filters=[{'Name': 'tag:Name', 'Values': ['Gaafar-ASG-G']},{'Name': 'instance-state-name', 'Values': ['running']}])
 for instance in instances:
     print(instance.id)
 
+print ("\nNow timing reinstatement…\nPlease wait while these AWS HA reinstates the instances …")
+import time 
+time.sleep(240)
+
+print("\nYou have the following  instances running:\n")
+
+ec2 = boto3.resource('ec2')
+
+instances = ec2.instances.filter(
+    Filters=[{'Name': 'tag:Name', 'Values': ['Gaafar-ASG-G']},{'Name': 'instance-state-name', 'Values': ['running']}])
+for instance in instances:
+    print(instance.id)
+
+endtime = datetime.datetime.now()
+
+timeelapsed = endtime - startime
+print ("====tud_cm Test Result====\n")
+print("\n",x,"instances stopped,",x," instances reinstated in",timeelapsed) 
+ 
