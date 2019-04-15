@@ -80,6 +80,7 @@ timeelapsed = endtime - startime
 
 # printing the result:
 
+print("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
 print ("\n====tud_cm Test Result====\n")
 print(x,"instances stopped,",x," instances reinstated in",timeelapsed,"\n")
 
